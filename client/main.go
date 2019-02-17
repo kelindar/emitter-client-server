@@ -8,15 +8,13 @@ import (
 )
 
 func main() {
-	client, err := emitter.Connect("tcp://127.0.0.1:8080", func(c *emitter.Client, msg emitter.Message) {
-		println("received message: ", msg.Topic(), string(msg.Payload()))
-	})
+	client, err := emitter.Connect("tcp://127.0.0.1:8080", onMessageReceived)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create a private link
-	if _, err := client.CreatePrivateLink("NcH3EKOpWP4l3eDL5I4nqnPhbVQRymei", "demo/", "s", true); err != nil {
+	if _, err := client.CreatePrivateLink("NcH3EKOpWP4l3eDL5I4nqnPhbVQRymei", "demo/", "s", onMessageReceived); err != nil {
 		panic(err)
 	}
 
@@ -34,4 +32,8 @@ func main() {
 
 		client.PublishWithLink("s", text)
 	}
+}
+
+func onMessageReceived(_ *emitter.Client, msg emitter.Message) {
+	println("received message: ", msg.Topic(), string(msg.Payload()))
 }
